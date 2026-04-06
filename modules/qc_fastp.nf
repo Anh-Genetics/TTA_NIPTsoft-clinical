@@ -1,6 +1,7 @@
 // ============================================================
 // modules/qc_fastp.nf
-// Read QC, trimming, and filtering with fastp (SE mode)
+// EN: Read QC, adapter trimming, and quality filtering with fastp (SE mode)
+// VI: Kiểm tra chất lượng đọc, cắt adapter và lọc chất lượng bằng fastp (chế độ SE)
 // ============================================================
 
 process FASTP_QC {
@@ -8,6 +9,8 @@ process FASTP_QC {
     tag "${meta.id}"
     label 'process_medium'
 
+    // EN: Publish QC reports to outdir/qc/fastp; trimmed reads not kept by default
+    // VI: Xuất báo cáo QC vào outdir/qc/fastp; đọc đã cắt tỉa không lưu mặc định
     publishDir "${params.outdir}/qc/fastp",  mode: 'copy', pattern: '*.{json,html}'
     publishDir "${params.outdir}/reads",     mode: 'copy', pattern: '*_trimmed.fastq.gz', enabled: false
 
@@ -23,6 +26,8 @@ process FASTP_QC {
 
     script:
     def sample_id         = meta.id
+    // EN: Quality and length thresholds from params with safe defaults
+    // VI: Ngưỡng chất lượng và độ dài từ tham số với giá trị mặc định an toàn
     def min_length        = params.min_read_length        ?: 30
     def quality_threshold = params.quality_threshold      ?: 20
     def adapter           = params.adapter_sequence       ?: ''
@@ -33,6 +38,10 @@ process FASTP_QC {
     def threads           = task.cpus
 
     """
+    # EN: Run fastp for SE read QC, trimming, and quality filtering
+    # VI: Chạy fastp để kiểm tra QC, cắt tỉa và lọc chất lượng đọc SE
+    echo "[INFO] EN: Starting fastp QC / VI: Bắt đầu kiểm tra fastp cho mẫu: ${sample_id}" >&2
+
     fastp \\
         --in1           ${reads} \\
         --out1          ${sample_id}_trimmed.fastq.gz \\
@@ -47,5 +56,7 @@ process FASTP_QC {
         --json              ${sample_id}_fastp.json \\
         --html              ${sample_id}_fastp.html \\
         2>&1 | tee ${sample_id}_fastp.log
+
+    echo "[DONE / HOÀN THÀNH] EN: fastp QC complete / VI: Hoàn thành kiểm tra fastp cho: ${sample_id}" >&2
     """
 }

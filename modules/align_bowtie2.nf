@@ -1,6 +1,7 @@
 // ============================================================
 // modules/align_bowtie2.nf
-// Align SE reads with Bowtie2, convert to sorted BAM
+// EN: Align single-end reads with Bowtie2 and convert to sorted BAM
+// VI: Căn chỉnh đọc single-end bằng Bowtie2 và chuyển đổi thành BAM đã sắp xếp
 // ============================================================
 
 process BOWTIE2_ALIGN {
@@ -8,6 +9,8 @@ process BOWTIE2_ALIGN {
     tag "${meta.id}"
     label 'process_high'
 
+    // EN: Publish BAM files only when params.publish_bam is true (saves disk)
+    // VI: Xuất file BAM chỉ khi params.publish_bam là true (tiết kiệm dung lượng)
     publishDir "${params.outdir}/bam", mode: 'copy',
         pattern: '*.bam*', enabled: params.publish_bam
 
@@ -24,14 +27,18 @@ process BOWTIE2_ALIGN {
 
     script:
     def sample_id = meta.id
-    def idx_base  = "${bowtie2_index_dir}/${bowtie2_index_dir.getName()}"
-    // Prefer bowtie2_index param-based path when index is a directory
+    // EN: Use bowtie2_index param directly (full path to index prefix)
+    // VI: Dùng tham số bowtie2_index trực tiếp (đường dẫn đầy đủ đến tiền tố index)
     def bt2_idx   = params.bowtie2_index
     def mode      = params.bowtie2_mode    ?: '--sensitive'
     def no_unal   = params.bowtie2_no_unal ? '--no-unal' : ''
     def threads   = task.cpus
 
     """
+    # EN: Align SE reads → SAM → filter primary alignments → sort → BAM
+    # VI: Căn chỉnh đọc SE → SAM → lọc căn chỉnh chính → sắp xếp → BAM
+    echo "[INFO] EN: Aligning reads / VI: Đang căn chỉnh đọc cho mẫu: ${sample_id}" >&2
+
     bowtie2 \\
         -x  ${bt2_idx} \\
         -U  ${reads} \\
@@ -42,6 +49,10 @@ process BOWTIE2_ALIGN {
     | samtools view -bS -q 1 - \\
     | samtools sort -@ ${threads} -o ${sample_id}.sorted.bam -
 
+    # EN: Index the sorted BAM for downstream tools
+    # VI: Tạo chỉ mục cho BAM đã sắp xếp cho các công cụ tiếp theo
     samtools index ${sample_id}.sorted.bam
+
+    echo "[DONE / HOÀN THÀNH] EN: Alignment complete / VI: Hoàn thành căn chỉnh cho: ${sample_id}" >&2
     """
 }

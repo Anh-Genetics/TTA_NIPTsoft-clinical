@@ -1,6 +1,9 @@
 // ============================================================
 // modules/validate_samplesheet.nf
-// Validate CSV samplesheet against JSON schema
+// EN: Validate CSV samplesheet against JSON schema.
+//     Fails hard on any error (duplicate IDs, missing fields, etc.)
+// VI: Kiểm tra file CSV samplesheet dựa trên JSON schema.
+//     Dừng ngay khi có lỗi (ID trùng, trường thiếu, v.v.)
 // ============================================================
 
 process VALIDATE_SAMPLESHEET {
@@ -22,6 +25,8 @@ process VALIDATE_SAMPLESHEET {
     script:
     def schema = "${projectDir}/schemas/samplesheet.schema.json"
     """
+    # EN: Validate samplesheet CSV against JSON schema; produce cleaned CSV
+    # VI: Kiểm tra CSV samplesheet dựa trên JSON schema; tạo CSV đã làm sạch
     python3 ${projectDir}/bin/validate_samplesheet.py \\
         --samplesheet ${samplesheet} \\
         --schema      ${schema} \\

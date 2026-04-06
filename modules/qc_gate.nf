@@ -1,7 +1,11 @@
 // ============================================================
 // modules/qc_gate.nf
-// Unified QC gate and no-call decision engine
-// Aggregates all QC metrics and determines final QC status
+// EN: Unified QC gate and no-call decision engine.
+//     Aggregates all QC metrics; determines final reportability.
+//     All gates (G01–G06) must pass for results to be reported.
+// VI: Bộ máy kiểm tra QC thống nhất và quyết định không gọi kết quả.
+//     Tổng hợp tất cả chỉ số QC; xác định khả năng báo cáo cuối cùng.
+//     Tất cả cổng (G01–G06) phải đạt mới được phép báo cáo kết quả.
 // ============================================================
 
 process QC_GATE {
@@ -27,13 +31,17 @@ process QC_GATE {
 
     script:
     def sample_id      = meta.id
-    def min_raw_reads  = params.min_raw_reads       ?: 8000000
-    def min_uniq_reads = params.min_unique_reads    ?: 4000000
+    // EN: QC thresholds with safe defaults matching clinical_tier1.config
+    // VI: Ngưỡng QC với giá trị mặc định an toàn khớp với clinical_tier1.config
+    def min_raw_reads  = params.min_raw_reads      ?: 8000000
+    def min_uniq_reads = params.min_unique_reads   ?: 4000000
     def max_dup_rate   = params.max_dup_rate        ?: 0.35
     def min_ff         = params.min_fetal_fraction  ?: 0.04
     def min_map_rate   = params.min_mapping_rate    ?: 0.70
 
     """
+    # EN: Evaluate all QC gates and determine reportability
+    # VI: Đánh giá tất cả cổng QC và xác định khả năng báo cáo
     python3 ${projectDir}/bin/qc_decision.py \\
         --sample-id        ${sample_id} \\
         --fastp-json       ${fastp_json} \\

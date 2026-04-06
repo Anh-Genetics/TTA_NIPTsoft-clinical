@@ -1,6 +1,9 @@
 // ============================================================
 // modules/report.nf
-// Generate machine-readable JSON clinical report and HTML summary
+// EN: Generate machine-readable JSON clinical report, HTML summary,
+//     and audit trail JSON with MD5 checksums.
+// VI: Tạo báo cáo lâm sàng JSON có thể đọc bằng máy, tóm tắt HTML,
+//     và file JSON dấu kiểm toán kèm MD5 checksum.
 // ============================================================
 
 process MAKE_REPORT {
@@ -33,6 +36,8 @@ process MAKE_REPORT {
     def run_id           = meta.run_id               ?: params.run_id
 
     """
+    # EN: Generate JSON + HTML clinical report and audit trail
+    # VI: Tạo báo cáo lâm sàng JSON + HTML và dấu kiểm toán
     python3 ${projectDir}/bin/make_report.py \\
         --sample-id        ${sample_id} \\
         --run-id           ${run_id} \\

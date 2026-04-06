@@ -1,7 +1,9 @@
 // ============================================================
 // modules/aneuploidy_call.nf
-// Aneuploidy calling for T21, T18, T13
-// Uses robust Z-score and NCV models
+// EN: Aneuploidy calling for T21 (Down), T18 (Edwards), T13 (Patau)
+//     Uses robust Z-score (MAD-based) and NCV models.
+// VI: Gọi lệch bội T21 (Down), T18 (Edwards), T13 (Patau)
+//     Dùng mô hình Z-score bền vững (dựa trên MAD) và NCV.
 // ============================================================
 
 process ANEUPLOIDY_CALL {
@@ -22,12 +24,16 @@ process ANEUPLOIDY_CALL {
     tuple val(meta), path("${meta.id}.aneuploidy_calls.json"), emit: aneuploidy_calls
 
     script:
-    def sample_id        = meta.id
-    def zscore_high      = params.zscore_high_risk   ?: 3.0
-    def zscore_grey      = params.zscore_grey_zone_lo ?: 2.5
-    def targets          = ['chr21', 'chr18', 'chr13'].join(',')
+    def sample_id   = meta.id
+    // EN: Z-score thresholds from params (high-risk and grey-zone)
+    // VI: Ngưỡng Z-score từ tham số (nguy cơ cao và vùng xám)
+    def zscore_high = params.zscore_high_risk    ?: 3.0
+    def zscore_grey = params.zscore_grey_zone_lo ?: 2.5
+    def targets     = ['chr21', 'chr18', 'chr13'].join(',')
 
     """
+    # EN: Call T21/T18/T13 using robust Z-score model
+    # VI: Gọi T21/T18/T13 bằng mô hình Z-score bền vững
     python3 ${projectDir}/bin/zscore_model.py \\
         --norm-counts      ${norm_counts} \\
         --ff-metrics       ${ff_metrics} \\

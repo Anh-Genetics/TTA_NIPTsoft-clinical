@@ -1,7 +1,11 @@
 // ============================================================
 // modules/microdeletion.nf
-// Microdeletion detection constrained to curated panel regions
-// Strictest QC requirements; conservative no-call behavior
+// EN: Microdeletion detection constrained to curated panel regions.
+//     Strictest QC requirements (FF ≥ 8%); conservative no-call behavior.
+//     HIGH_RISK result MUST be confirmed by diagnostic testing.
+// VI: Phát hiện vi mất đoạn giới hạn trong panel đã tuyển chọn.
+//     Yêu cầu QC nghiêm nhất (FF ≥ 8%); hành vi thận trọng khi không gọi.
+//     Kết quả CAO NGUY CƠ PHẢI được xác nhận bằng xét nghiệm chẩn đoán.
 // ============================================================
 
 process MICRODELETION_CALL {
@@ -24,11 +28,13 @@ process MICRODELETION_CALL {
 
     script:
     def sample_id   = meta.id
-    def md_thresh   = params.microdeletion_zscore    ?: 5.0
-    def md_min_ff   = params.microdeletion_min_ff    ?: 0.08
-    def md_min_bins = params.microdeletion_min_bins  ?: 2
+    def md_thresh   = params.microdeletion_zscore   ?: 5.0
+    def md_min_ff   = params.microdeletion_min_ff   ?: 0.08
+    def md_min_bins = params.microdeletion_min_bins ?: 2
 
     """
+    # EN: Detect panel-region microdeletions (deletion = negative Z ≤ -5)
+    # VI: Phát hiện vi mất đoạn trong vùng panel (mất đoạn = Z âm ≤ -5)
     python3 ${projectDir}/bin/microdeletion_call.py \\
         --norm-counts      ${norm_counts} \\
         --ff-metrics       ${ff_metrics} \\

@@ -1,6 +1,7 @@
 // ============================================================
 // modules/gc_correct.nf
-// GC/mappability-aware normalization using LOESS regression
+// EN: GC/mappability-aware normalization using LOESS regression
+// VI: Chuẩn hóa có nhận thức GC/tính ánh xạ bằng hồi quy LOESS
 // ============================================================
 
 process GC_CORRECT {
@@ -13,7 +14,7 @@ process GC_CORRECT {
     publishDir "${params.outdir}/qc/gc",  mode: 'copy',
         pattern: '*.gc_bias.json'
 
-    conda 'conda-forge::r-base=4.3 bioconda::bioconductor-genomicranges=1.54 conda-forge::r-arrow=12.0'
+    conda 'conda-forge::r-base=4.3 bioconductor::bioconductor-genomicranges=1.54 conda-forge::r-arrow=12.0 conda-forge::r-jsonlite=1.8'
 
     input:
     tuple val(meta), path(raw_counts)
@@ -27,6 +28,8 @@ process GC_CORRECT {
     def sample_id = meta.id
 
     """
+    # EN: Run LOESS GC/mappability correction via R script
+    # VI: Chạy hiệu chỉnh GC/ánh xạ bằng hồi quy LOESS qua script R
     Rscript ${projectDir}/bin/gc_loess_correct.R \\
         --counts       ${raw_counts} \\
         --gc-bed       ${gc_bed} \\

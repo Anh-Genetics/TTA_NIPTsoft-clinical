@@ -1,7 +1,9 @@
 // ============================================================
 // modules/ff_estimation.nf
-// Fetal fraction estimation using sex-independent and optional
-// Y-based methods
+// EN: Fetal fraction estimation using sex-independent and optional
+//     Y-based methods. Outputs a JSON metrics file per sample.
+// VI: Ước tính tỷ lệ DNA thai nhi bằng phương pháp độc lập giới tính
+//     và tùy chọn dựa trên chrY. Xuất file JSON chỉ số mỗi mẫu.
 // ============================================================
 
 process FF_ESTIMATE {
@@ -22,10 +24,12 @@ process FF_ESTIMATE {
     tuple val(meta), path("${meta.id}.ff_metrics.json"), emit: ff_metrics
 
     script:
-    def sample_id     = meta.id
-    def reported_sex  = meta.sex ?: 'unknown'
+    def sample_id    = meta.id
+    def reported_sex = meta.sex ?: 'unknown'
 
     """
+    # EN: Estimate fetal fraction using SeqFF-style and Y-based methods
+    # VI: Ước tính tỷ lệ DNA thai nhi bằng phương pháp kiểu SeqFF và dựa trên chrY
     python3 ${projectDir}/bin/ff_estimate.py \\
         --norm-counts  ${norm_counts} \\
         --bam-stats    ${bam_stats} \\
