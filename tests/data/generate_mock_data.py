@@ -14,7 +14,7 @@ def make_mock_fastq(outfile: Path, n_reads: int = 1000,
     """Generate a synthetic FASTQ.gz with random reads."""
     random.seed(seed)
     bases = "ACGT"
-    quals = "IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII"
+    quals = "I" * read_length
 
     with gzip.open(outfile, "wt") as f:
         for i in range(n_reads):

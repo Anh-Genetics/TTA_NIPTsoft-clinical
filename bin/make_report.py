@@ -257,9 +257,10 @@ def main():
     with open(args.out_json, "w") as f:
         json.dump(report, f, indent=2)
 
-    html = build_html(report)
+    # Write HTML report — intentional clinical output file
+    html_content = build_html(report)
     with open(args.out_html, "w") as f:
-        f.write(html)
+        f.write(html_content)
 
     # Audit trail
     audit = {

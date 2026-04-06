@@ -11,12 +11,18 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+# Minimal default permissions (least privilege)
+permissions:
+  contents: read
+
 jobs:
 
   # ── Lint ───────────────────────────────────────────────────
   lint:
     name: Lint Python scripts
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4
 
@@ -46,6 +52,8 @@ jobs:
   unit-tests:
     name: Unit tests
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4
 
@@ -84,6 +92,8 @@ jobs:
   schema-validation:
     name: Validate JSON schemas
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4
 
@@ -120,6 +130,8 @@ jobs:
   smoke-tests:
     name: Integration smoke tests
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4
 
@@ -150,6 +162,8 @@ jobs:
   nextflow-syntax:
     name: Nextflow config syntax check
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4
 
@@ -169,6 +183,8 @@ jobs:
   docs-check:
     name: Documentation completeness check
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4
 

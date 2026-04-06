@@ -85,16 +85,20 @@ def make_mock_euploid_reference(tmp_dir: Path) -> Path:
 
     CR values are calibrated to match make_mock_norm_counts output:
     - Each autosome: 40 bins at norm_count ~1.0
-    - NORM_CHRS (19 autosomes used as normalizers): 19 * 40 = 760 bins
-    - Expected CR for any autosome ≈ 40 / 760 ≈ 0.0526
+    - NORM_CHRS (N_NORM_CHRS autosomes used as normalizers)
+    - Expected CR for any autosome ≈ MOCK_BINS_PER_CHR / (N_NORM_CHRS * MOCK_BINS_PER_CHR)
     """
     rng = np.random.default_rng(99)
     data = {}
     chrs = [f"chr{i}" for i in range(1, 23)] + ["chrX", "chrY"]
 
-    # Calibrated base CRs matching the mock normalized counts structure
-    # 40 bins per autosome, 19 normalizer autosomes → CR ≈ 40/760 = 0.05263
-    AUTOSOME_BASE_CR = 40.0 / (19 * 40)  # ~0.0526
+    # Number of normalizer autosomes matches zscore_model.NORM_CHRS
+    # (all autosomes minus chrX/Y/M: 19 autosomes when excluding chr13/18/21)
+    # In the mock data each chromosome has MOCK_BINS_PER_CHR bins
+    MOCK_BINS_PER_CHR = 40
+    N_NORM_CHRS = 19  # number of autosomes in NORM_CHRS list
+    AUTOSOME_BASE_CR = MOCK_BINS_PER_CHR / (N_NORM_CHRS * MOCK_BINS_PER_CHR)
+
     for chr_name in chrs:
         if chr_name in ("chrX", "chrY"):
             base = 0.10  # sex chromosomes have different representation

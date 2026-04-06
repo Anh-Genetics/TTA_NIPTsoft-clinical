@@ -171,7 +171,8 @@ def main():
     with open(args.out, "w") as f:
         json.dump(result, f, indent=2)
 
-    print(f"SCA calling complete for {args.sample_id}: sex={inferred_sex}", file=sys.stderr)
+    print(f"SCA calling complete for {args.sample_id}: fetal_sex_inferred={len(calls)} targets",
+          file=sys.stderr)
     for c, v in calls.items():
         print(f"  {c}: Z={v.get('z', 'N/A')} => {v['classification']}", file=sys.stderr)
 
