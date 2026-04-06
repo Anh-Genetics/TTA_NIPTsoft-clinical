@@ -1,0 +1,60 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "NIPT Samplesheet Schema",
+  "description": "Schema for validating NIPT samplesheet CSV input",
+  "type": "object",
+  "properties": {
+    "sample_id": {
+      "type": "string",
+      "description": "Unique sample identifier (alphanumeric, dash, underscore)",
+      "pattern": "^[A-Za-z0-9_-]+$",
+      "minLength": 1,
+      "maxLength": 64
+    },
+    "fastq_path": {
+      "type": "string",
+      "description": "Absolute or relative path to FASTQ file (gzipped)",
+      "minLength": 1
+    },
+    "reported_sex": {
+      "type": "string",
+      "description": "Reported fetal sex from clinical record (optional)",
+      "enum": ["male", "female", "unknown", ""]
+    },
+    "run_id": {
+      "type": "string",
+      "description": "Sequencing run identifier",
+      "pattern": "^[A-Za-z0-9_-]*$"
+    },
+    "batch": {
+      "type": "string",
+      "description": "Analysis batch identifier",
+      "pattern": "^[A-Za-z0-9_-]*$"
+    },
+    "ga_weeks": {
+      "type": "string",
+      "description": "Gestational age in weeks at sample collection (optional)",
+      "pattern": "^([0-9]+\\.?[0-9]*)?$"
+    },
+    "maternal_age": {
+      "type": "string",
+      "description": "Maternal age in years (optional)",
+      "pattern": "^([0-9]+)?$"
+    },
+    "sample_type": {
+      "type": "string",
+      "description": "Sample type",
+      "enum": ["plasma", "whole_blood", "cfDNA", ""]
+    },
+    "library_kit": {
+      "type": "string",
+      "description": "Library preparation kit identifier (optional)"
+    },
+    "operator": {
+      "type": "string",
+      "description": "Operator/technician ID (optional)"
+    }
+  },
+  "required": ["sample_id", "fastq_path"],
+  "additionalProperties": true
+}

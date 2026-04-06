@@ -1,0 +1,3 @@
+sample_id,fastq_path,reported_sex,run_id,batch,ga_weeks
+MOCK_EUPLOID_01,tests/data/mock_fastq/mock_euploid.fastq.gz,female,MOCK_RUN_001,batch_A,12
+MOCK_T21_01,tests/data/mock_fastq/mock_t21.fastq.gz,unknown,MOCK_RUN_001,batch_A,14

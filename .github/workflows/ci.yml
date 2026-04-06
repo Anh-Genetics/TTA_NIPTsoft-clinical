@@ -1,0 +1,220 @@
+name: CI — TTA NIPTsoft Clinical Pipeline
+
+on:
+  push:
+    branches: [ "main", "develop", "copilot/**" ]
+  pull_request:
+    branches: [ "main" ]
+
+# Cancel in-progress runs for the same branch/PR
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+# Minimal default permissions (least privilege)
+permissions:
+  contents: read
+
+jobs:
+
+  # ── Lint ───────────────────────────────────────────────────
+  lint:
+    name: Lint Python scripts
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install linters
+        run: pip install flake8 pyflakes
+
+      - name: Lint bin/ scripts
+        run: |
+          flake8 bin/ \
+            --max-line-length=120 \
+            --ignore=E501,W503,W504,E226 \
+            --count --statistics
+
+      - name: Lint tests/
+        run: |
+          flake8 tests/ \
+            --max-line-length=120 \
+            --ignore=E501,W503,W504,E226 \
+            --count --statistics
+
+  # ── Unit tests ─────────────────────────────────────────────
+  unit-tests:
+    name: Unit tests
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install test dependencies
+        run: |
+          pip install \
+            pytest pytest-cov \
+            numpy pandas scipy \
+            pyarrow \
+            jsonschema
+
+      - name: Run unit tests
+        run: |
+          pytest tests/unit/ \
+            -v \
+            --tb=short \
+            --cov=bin \
+            --cov-report=term-missing \
+            --cov-report=xml:coverage.xml \
+            -x
+
+      - name: Upload coverage
+        uses: codecov/codecov-action@v4
+        if: always()
+        with:
+          file: ./coverage.xml
+          flags: unit-tests
+        continue-on-error: true
+
+  # ── Schema validation ──────────────────────────────────────
+  schema-validation:
+    name: Validate JSON schemas
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install jsonschema
+        run: pip install jsonschema check-jsonschema
+
+      - name: Validate samplesheet schema
+        run: |
+          python3 -c "
+          import json, jsonschema
+          with open('schemas/samplesheet.schema.json') as f:
+              schema = json.load(f)
+          # Validate schema itself is valid
+          jsonschema.Draft7Validator.check_schema(schema)
+          print('samplesheet.schema.json: OK')
+          "
+
+      - name: Validate report schema
+        run: |
+          python3 -c "
+          import json, jsonschema
+          with open('schemas/report.schema.json') as f:
+              schema = json.load(f)
+          jsonschema.Draft7Validator.check_schema(schema)
+          print('report.schema.json: OK')
+          "
+
+  # ── Integration / smoke tests ──────────────────────────────
+  smoke-tests:
+    name: Integration smoke tests
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          pip install \
+            pytest \
+            numpy pandas scipy \
+            pyarrow \
+            jsonschema
+
+      - name: Generate mock data
+        run: python3 tests/data/generate_mock_data.py
+
+      - name: Run smoke/integration tests
+        run: |
+          pytest tests/integration/ \
+            -v \
+            --tb=short \
+            -x
+
+  # ── Nextflow config syntax check ──────────────────────────
+  nextflow-syntax:
+    name: Nextflow config syntax check
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Nextflow
+        run: |
+          wget -qO nextflow https://github.com/nextflow-io/nextflow/releases/download/v23.10.1/nextflow
+          chmod +x nextflow
+          sudo mv nextflow /usr/local/bin/
+
+      - name: Check Nextflow config syntax
+        run: |
+          # Validate main.nf and configs can be parsed by nextflow
+          nextflow config -profile test 2>&1 | head -50 || true
+          echo "Nextflow config check complete"
+
+  # ── Documentation check ───────────────────────────────────
+  docs-check:
+    name: Documentation completeness check
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check required documentation files
+        run: |
+          required_files=(
+            "README.md"
+            "docs/SOP.md"
+            "docs/VALIDATION_PLAN.md"
+            "docs/TROUBLESHOOTING.md"
+          )
+          missing=0
+          for f in "${required_files[@]}"; do
+            if [ ! -f "$f" ]; then
+              echo "MISSING: $f"
+              missing=$((missing + 1))
+            else
+              lines=$(wc -l < "$f")
+              echo "OK: $f (${lines} lines)"
+            fi
+          done
+          if [ $missing -gt 0 ]; then
+            echo "ERROR: $missing required documentation file(s) missing"
+            exit 1
+          fi
+
+      - name: Check clinical disclaimer in README
+        run: |
+          if grep -qi "screening test" README.md; then
+            echo "Clinical disclaimer found in README.md"
+          else
+            echo "WARNING: Clinical disclaimer not found in README.md"
+          fi

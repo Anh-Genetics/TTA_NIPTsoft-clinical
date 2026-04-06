@@ -1,0 +1,59 @@
+# TTA_NIPTsoft-clinical .gitignore
+
+# ── Nextflow ──────────────────────────────────────────────────
+.nextflow/
+.nextflow.log*
+work/
+results/
+test_results/
+*.trace.txt
+
+# ── Python ────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+.eggs/
+.pytest_cache/
+htmlcov/
+.coverage
+coverage.xml
+*.cover
+.hypothesis/
+
+# ── R ─────────────────────────────────────────────────────────
+.Rhistory
+.RData
+.Rproj.user/
+*.Rout
+
+# ── Large reference files (download separately) ───────────────
+assets/genome/hg19/
+assets/genome/hg38/
+assets/genome/*.fa
+assets/genome/*.fa.fai
+assets/genome/*.dict
+assets/genome/*.bt2
+assets/genome/*.bt2l
+assets/controls/euploid_reference_matrix.parquet
+
+# ── IDE / OS ──────────────────────────────────────────────────
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*.swo
+Thumbs.db
+
+# ── Conda environments ────────────────────────────────────────
+.snakemake/
+envs/
+
+# ── Temporary files ───────────────────────────────────────────
+tmp/
+temp/
+*.tmp
+*.log
+!.nextflow.log.bak

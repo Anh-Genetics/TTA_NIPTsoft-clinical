@@ -1,0 +1,37 @@
+# Microdeletion panel BED file
+# Format: chr  start  end  syndrome_name  min_bins
+# Reference: GRCh37/hg19 coordinates
+# Sources: ACMG/ClinGen curated pathogenic microdeletion regions
+# 
+# IMPORTANT: This panel requires laboratory-specific validation before clinical use.
+# Not all microdeletion syndromes have sufficient NIPT performance data.
+# Each laboratory must validate sensitivity/specificity for each region.
+#
+# Recommended minimum requirements per region:
+# - Minimum 2 bins fully contained within region
+# - Fetal fraction ≥ 8% (stricter than autosomal aneuploidies)
+# - Z-score threshold ≥ 5.0
+
+# DiGeorge / Velocardiofacial syndrome (22q11.2)
+chr22	18648854	21800471	22q11.2_DiGeorge	2
+
+# 1p36 deletion syndrome
+chr1	0	3000000	1p36_deletion	2
+
+# Wolf-Hirschhorn syndrome (4p16.3)
+chr4	0	4000000	4p16.3_Wolf_Hirschhorn	2
+
+# Cri-du-chat syndrome (5p15.2)
+chr5	0	11500000	5p15.2_Cri_du_chat	2
+
+# Prader-Willi / Angelman syndrome (15q11-q13)
+chr15	22000000	28500000	15q11q13_PWS_Angelman	2
+
+# Jacobsen syndrome (11q23-q24)
+chr11	116000000	134452384	11q23_Jacobsen	2
+
+# Langer-Giedion syndrome (8q24.11-q24.13)
+chr8	116600000	119500000	8q24_Langer_Giedion	2
+
+# WAGR syndrome (11p13)
+chr11	31800000	32500000	11p13_WAGR	2
